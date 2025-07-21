@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>文科生AI学习YouTube频道推荐</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #fff;
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+      margin: 0;
+      color: #333;
+    }
+    .container {
+      max-width: 1000px; /* 收窄内容区，提升聚焦感 */
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+    .hero {
+      background: radial-gradient(ellipse at 60% 40%, #f9f5ff 60%, #fff 100%);
+      padding: 80px 0 60px 0;
+      text-align: center;
+      border-radius: 0 0 48px 48px;
+    }
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: #1A1A1A;
+      margin-bottom: 18px;
+      letter-spacing: -1px;
+    }
+    .hero p {
+      font-size: 1.25rem;
+      color: #555;
+      margin-bottom: 36px;
+    }
+    .cta-btn {
+      background: #FF2D8A;
+      color: #fff;
+      border-radius: 32px;
+      padding: 18px 48px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border: none;
+      box-shadow: 0 4px 24px rgba(255,45,138,0.08);
+      transition: transform 0.15s, box-shadow 0.15s;
+      cursor: pointer;
+      outline: none;
+      margin-bottom: 10px;
+    }
+    .cta-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 32px rgba(255,45,138,0.16);
+    }
+    .section {
+      margin: 64px 0 0 0;
+      padding: 0;
+    }
+    .section-bg {
+      background: #F9F5FF;
+      border-radius: 32px;
+      padding: 48px 0 32px 0;
+      margin: 64px 0 0 0;
+      padding-left: 32px; /* 新增，保证卡片与左侧有间距 */
+      padding-right: 32px; /* 新增，保证卡片与右侧有间距 */
+    }
+    /* 统一标题颜色 */
+    .section-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1A1A1A !important; /* 统一为黑色 */
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .section-desc {
+      color: #555;
+      font-size: 1.08rem;
+      margin-bottom: 36px;
+      text-align: center;
+    }
+    .card-list {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      justify-items: center;
+    }
+    .card-link {
+      text-decoration: none;
+      color: inherit;
+    }
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 2px 12px rgba(45,108,223,0.08);
+      padding: 20px 14px 16px 14px;
+      width: 100%;
+      max-width: 260px;
+      min-width: 200px;
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: box-shadow 0.25s cubic-bezier(.4,0,.2,1), transform 0.22s cubic-bezier(.4,0,.2,1);
+      cursor: pointer;
+      position: relative;
+      box-sizing: border-box;
+    }
+    .card:hover {
+      box-shadow: 0 8px 32px rgba(255,45,138,0.18), 0 2px 12px rgba(45,108,223,0.10);
+      transform: scale(1.045) translateY(-4px);
+      z-index: 2;
+    }
+    .card-logo {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 8px rgba(45,108,223,0.10);
+      margin-bottom: 12px;
+      background: #f9f5ff;
+      object-fit: cover;
+      display: block;
+    }
+    .card-title {
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: #1A1A1A;
+      margin-bottom: 6px;
+      text-align: center;
+      text-decoration: none;
+    }
+    .card-desc {
+      color: #333;
+      font-size: 0.98rem;
+      margin-bottom: 12px;
+      text-align: center;
+      text-decoration: none;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .tag {
+      background: #FF2D8A;
+      color: #fff;
+      border-radius: 16px;
+      padding: 3px 12px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .section-green {
+      background: #E6FAF5;
+      border-top-left-radius: 32px;
+      border-top-right-radius: 32px;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      padding: 48px 0 32px 0;
+      margin: 64px 0 0 0;
+      padding-left: 32px; /* 新增，保证卡片与左侧有间距 */
+      padding-right: 32px; /* 新增，保证卡片与右侧有间距 */
+    }
+    /* 渐变背景区分四大块，增强色彩区域 */
+    .section-bg.business {
+      background: linear-gradient(120deg, #f9f5ff 40%, #e3f0ff 100%);
+    }
+    .section-bg.product {
+      background: linear-gradient(120deg, #f9f5ff 40%, #e6f9f3 100%);
+    }
+    .section-bg.ideas {
+      background: linear-gradient(120deg, #f9f5ff 40%, #f3e6ff 100%);
+    }
+    .section-bg.frontier {
+      background: linear-gradient(120deg, #f9f5ff 40%, #fff7e6 100%);
+    }
+    .section-bg.technology {
+      background: linear-gradient(120deg, #f9f5ff 40%, #e6f6ff 100%);
+    }
+    @media (max-width: 900px) {
+      .section-bg.business { background: linear-gradient(120deg, #f9f5ff 70%, #e3f0ff 100%); }
+      .section-bg.product { background: linear-gradient(120deg, #f9f5ff 70%, #e6f9f3 100%); }
+      .section-bg.ideas { background: linear-gradient(120deg, #f9f5ff 70%, #f3e6ff 100%); }
+      .section-bg.frontier { background: linear-gradient(120deg, #f9f5ff 70%, #fff7e6 100%); }
+      .section-bg.technology { background: linear-gradient(120deg, #f9f5ff 70%, #e6f6ff 100%); }
+    }
+    @media (max-width: 1200px) {
+      .container { max-width: 98vw; padding: 0 8px; }
+      .card-list { gap: 16px; grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .container { max-width: 100vw; padding: 0 4px; }
+      .card-list { grid-template-columns: 1fr; gap: 12px; }
+      .card { max-width: 100%; min-width: unset; }
+      .section-bg { padding-left: 12px; padding-right: 12px; }
+      .section-green { padding-left: 12px; padding-right: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div style="position: absolute; top: 32px; left: 32px; z-index: 100;">
+    <img src="coldbrew.ai.logo.jpg" alt="coldbrew.ai logo" style="height: 48px; width: auto; display: block; border-radius: 12px; box-shadow: 0 2px 12px rgba(45,108,223,0.15); background: #fff;" />
+  </div>
+  <div class="hero">
+    <div class="container">
+      <h1>文科生如何学习并构建个人AI能力</h1>
+      <p>适合日常学习的高质量 YouTube AI 频道推荐<br>文科生学AI，用好油管就够了</p>
+      <a class="cta-btn" href="#pro">立即体验</a>
+    </div>
+  </div>
+  <div class="container">
+    <!-- 商业与资本 -->
+    <div class="section section-bg business">
+      <div class="section-title">商业与资本 Business & Capital</div>
+      <div class="section-desc">理解市场、资本和商业模式，从宏观视角把握AI的价值。</div>
+      <div class="card-list">
+        <a class="card-link" href="https://www.youtube.com/@AcquiredFM" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/tPu92QukXurzmjPBwnY1AnuWKxoJCMEhUdTKNiz8oO9fzqVe6B9ZnlfGt_LXaWUX6dTmzc3KE6Q=s160-c-k-c0x00ffffff-no-rj" alt="Acquired logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">Acquired</div>
+            <div class="card-desc">科技巨头的深度商业史诗。</div>
+            <div class="tags"><span class="tag">#商业史</span><span class="tag">#公司战略</span><span class="tag">#深度分析</span></div>
+          </div>
+        </a>
+        <a class="card-link" href="https://www.youtube.com/@ILTB_Podcast" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_lQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="Invest Like the Best logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">Invest Like the Best</div>
+            <div class="card-desc">顶级投资人剖析商业世界。</div>
+            <div class="tags"><span class="tag">#投资哲学</span><span class="tag">#商业模式</span><span class="tag">#行业领袖</span></div>
+          </div>
+        </a>
+        <a class="card-link" href="https://www.youtube.com/@a16z" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_mQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="a16z logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">a16z</div>
+            <div class="card-desc">硅谷顶尖风投看未来科技。</div>
+            <div class="tags"><span class="tag">#科技趋势</span><span class="tag">#风险投资</span><span class="tag">#未来洞察</span></div>
+          </div>
+        </a>
+        <a class="card-link" href="https://www.youtube.com/@SequoiaCapital" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_nQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="Sequoia Capital logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">Sequoia Capital</div>
+            <div class="card-desc">顶尖风投的创业思维框架。</div>
+            <div class="tags"><span class="tag">#风险投资</span><span class="tag">#创业指南</span><span class="tag">#思维框架</span></div>
+          </div>
+        </a>
+        <a class="card-link" href="https://www.youtube.com/@ycombinator" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_oQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="Y Combinator logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">Y Combinator</div>
+            <div class="card-desc">顶尖创投的创业实战指南。</div>
+            <div class="tags"><span class="tag">#创业</span><span class="tag">#科技趋势</span><span class="tag">#商业洞察</span></div>
+          </div>
+        </a>
+        <a class="card-link" href="https://www.youtube.com/@NoPriorsPodcast" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_pQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="No Priors Podcast logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">No Priors Podcast</div>
+            <div class="card-desc">AI投资人与创始深度对谈。</div>
+            <div class="tags"><span class="tag">#AI投资</span><span class="tag">#创始人访谈</span><span class="tag">#技术前沿</span></div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <!-- 产品与增长 -->
+    <div class="section section-bg product">
+      <div class="section-title" style="color:#1abc9c;">产品与增长 Product & Growth</div>
+      <div class="section-desc">学习从0到1打造产品的方法论，掌握用户洞察和增长的实战策略。</div>
+      <div class="card-list">
+        <a class="card-link" href="https://www.youtube.com/@LennysPodcast" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_qQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="Lenny's Podcast logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">Lenny's Podcast</div>
+            <div class="card-desc">顶尖的产品增长实战经验。</div>
+            <div class="tags"><span class="tag">#产品增长</span><span class="tag">#商业策略</span><span class="tag">#创始人访谈</span></div>
+          </div>
+        </a>
+        <a class="card-link" href="https://www.youtube.com/@peteryang" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_rQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="Peter Yang logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">Peter Yang-behind the craft</div>
+            <div class="card-desc">产品专家的深度成长心法。</div>
+            <div class="tags"><span class="tag">#产品思维</span><span class="tag">#职业成长</span><span class="tag">#科技洞察</span></div>
+          </div>
+        </a>
+        <a class="card-link" href="https://www.youtube.com/@gregisenberg" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_sQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="Greg Isenberg logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">Greg Isenberg</div>
+            <div class="card-desc">AI时代的社区与产品设计。</div>
+            <div class="tags"><span class="tag">#社区经济</span><span class="tag">#产品设计</span><span class="tag">#AI影响力</span></div>
+          </div>
+        </a>
+        <a class="card-link" href="https://www.youtube.com/@SouthParkCommons" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_tQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="South Park Commons logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">South Park Commons</div>
+            <div class="card-desc">技术专家社区的深度分享。</div>
+            <div class="tags"><span class="tag">#创始人社区</span><span class="tag">#前沿技术</span><span class="tag">#深度讨论</span></div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <!-- 思想与未来 -->
+    <div class="section section-bg ideas">
+      <div class="section-title" style="color:#a259ec;">思想与未来 Ideas & The Future</div>
+      <div class="section-desc">通过深度对话和叙事，拔高认知，思考技术、社会及人类的未来。</div>
+      <div class="card-list">
+        <a class="card-link" href="https://www.youtube.com/@lexfridman" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_uQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="Lex Fridman logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">Lex Fridman</div>
+            <div class="card-desc">与顶尖思想家深度对话。</div>
+            <div class="tags"><span class="tag">#深度访谈</span><span class="tag">#哲学思辨</span><span class="tag">#科技大佬</span></div>
+          </div>
+        </a>
+        <a class="card-link" href="https://www.youtube.com/@EveryInc" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_vQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="Every--AI & I logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">Every--AI & I</div>
+            <div class="card-desc">AI如何改变我们的工作生活。</div>
+            <div class="tags"><span class="tag">#AI与生活</span><span class="tag">#创造力</span><span class="tag">#未来工作</span></div>
+          </div>
+        </a>
+        <a class="card-link" href="https://www.youtube.com/@ColdFusion" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_wQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="ColdFusion logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">ColdFusion</div>
+            <div class="card-desc">探索科技如何改变世界。</div>
+            <div class="tags"><span class="tag">#科技史</span><span class="tag">#商业故事</span><span class="tag">#未来展望</span></div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <!-- 前沿与快讯 -->
+    <div class="section section-bg frontier">
+      <div class="section-title" style="color:#f39c12;">前沿与快讯 Frontier & News</div>
+      <div class="section-desc">保持对行业动态的敏感度，快速追踪最新的技术突破、产品发布和研究论文。</div>
+      <div class="card-list">
+        <a class="card-link" href="https://www.youtube.com/@AIDailyBrief" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_xQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="The AI Daily Brief logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">The AI Daily Brief</div>
+            <div class="card-desc">每日AI新闻，不错过动态。</div>
+            <div class="tags"><span class="tag">#AI快讯</span><span class="tag">#行业趋势</span><span class="tag">#入门友好</span></div>
+          </div>
+        </a>
+        <a class="card-link" href="https://www.youtube.com/@TwoMinutePapers" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_yQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="Two Minute Papers logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">Two Minute Papers</div>
+            <div class="card-desc">两分钟看完AI研究新论文。</div>
+            <div class="tags"><span class="tag">#科研速递</span><span class="tag">#前沿技术</span><span class="tag">#视觉化</span></div>
+          </div>
+        </a>
+        <a class="card-link" href="https://www.youtube.com/@Fireship" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_zQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="Fireship logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">Fireship</div>
+            <div class="card-desc">100秒速览最新AI技术。</div>
+            <div class="tags"><span class="tag">#技术快报</span><span class="tag">#开发者文化</span><span class="tag">#编程入门</span></div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <!-- 技术与原理 -->
+    <div class="section section-bg technology">
+      <div class="section-title" style="color:#e74c3c;">技术与原理 Technology & Principles</div>
+      <div class="section-desc">夯实技术认知，理解AI的底层逻辑、核心算法和能力边界。</div>
+      <div class="card-list">
+        <a class="card-link" href="https://www.youtube.com/@ai-explained" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_1QwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="AI Explained logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">AI Explained</div>
+            <div class="card-desc">深入浅出拆解AI模型。</div>
+            <div class="tags"><span class="tag">#原理解析</span><span class="tag">#模型解读</span><span class="tag">#通俗易懂</span></div>
+          </div>
+        </a>
+        <a class="card-link" href="https://www.youtube.com/@3blue1brown" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_2QwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="3Blue1Brown logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">3Blue1Brown</div>
+            <div class="card-desc">可视化数学，理解AI基石。</div>
+            <div class="tags"><span class="tag">#数学之美</span><span class="tag">#直观动画</span><span class="tag">#底层逻辑</span></div>
+          </div>
+        </a>
+        <a class="card-link" href="https://www.youtube.com/@statquest" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_3QwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="StatQuest with Josh Starmer logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">StatQuest with Josh Starmer</div>
+            <div class="card-desc">用图画让统计学和机器学习不再难懂。</div>
+            <div class="tags"><span class="tag">#统计入门</span><span class="tag">#机器学习</span><span class="tag">#核心算法</span></div>
+          </div>
+        </a>
+        <a class="card-link" href="https://www.youtube.com/@DeepLearningAI" target="_blank">
+          <div class="card">
+            <img class="card-logo" src="https://yt3.googleusercontent.com/ytc/AIdro_4QwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw=s176-c-k-c0x00ffffff-no-rj" alt="DeepLearning.AI logo" onerror="this.src='https://www.youtube.com/img/desktop/yt_1200.png'">
+            <div class="card-title">DeepLearning.AI</div>
+            <div class="card-desc">吴恩达带你进入AI世界。</div>
+            <div class="tags"><span class="tag">#权威课程</span><span class="tag">#机器学习</span><span class="tag">#入门</span></div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="section-green">
+    <div class="container">
+      <div class="section-title" style="margin-bottom: 0; text-align: center;">
+        Level up your career with AI
+      </div>
+      <div style="font-size: 2.2rem; text-align: center; margin: 8px 0 0 0;">☕</div>
+      <div class="section-desc" style="margin-top: 8px; text-align: center;">
+        follow你喜欢的油管博主，每日深度学习！
+      </div>
+      <div style="margin: 40px 0 0 0; text-align: center; color: #444; font-size: 1.08rem; line-height: 1.8;">
+        只喝冷萃的AI产品人<br>分享关于AI的冷萃思考<br><span style="color:#888;font-size:1rem;">Cool &middot; Clear &middot; Insightful</span>
+      </div>
+      <div style="width:100%;text-align:center;color:#888;font-size:1rem;padding:32px 0 0 0;letter-spacing:1px;">
+        © coldbrew.ai
+      </div>
+    </div>
+  </div>
+</body>
+</html> 
